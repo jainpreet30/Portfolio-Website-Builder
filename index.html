@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Simple Portfolio Builder</title>
+  <style>
+    body {
+      font-family: Arial;
+      background: #f5f5f5;
+      padding: 20px;
+    }
+    .container {
+      max-width: 600px;
+      margin: auto;
+      background: #fff;
+      padding: 20px;
+      border-radius: 12px;
+      box-shadow: 0 0 10px rgba(0,0,0,0.1);
+    }
+    input, textarea {
+      width: 100%;
+      margin-bottom: 10px;
+      padding: 8px;
+    }
+    #output {
+      margin-top: 30px;
+      border-top: 2px dashed #ccc;
+      padding-top: 20px;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h2>🧑‍💻 Portfolio Website Builder</h2>
+
+    <input id="name" placeholder="Your Name" />
+    <input id="title" placeholder="Your Title (e.g. Web Developer)" />
+    <textarea id="about" rows="4" placeholder="About You"></textarea>
+    <input id="skills" placeholder="Skills (comma separated)" />
+    <input id="linkedin" placeholder="LinkedIn URL" />
+    <input id="github" placeholder="GitHub URL" />
+    
+    <button onclick="generatePortfolio()">Generate Portfolio</button>
+
+    <div id="output"></div>
+  </div>
+
+  <script>
+    function generatePortfolio() {
+      const name = document.getElementById("name").value;
+      const title = document.getElementById("title").value;
+      const about = document.getElementById("about").value;
+      const skills = document.getElementById("skills").value.split(",");
+      const linkedin = document.getElementById("linkedin").value;
+      const github = document.getElementById("github").value;
+
+      const skillList = skills.map(s => `<li>${s.trim()}</li>`).join("");
+
+      const result = `
+        <h2>${name}</h2>
+        <h3>${title}</h3>
+        <p>${about}</p>
+        <h4>Skills:</h4>
+        <ul>${skillList}</ul>
+        <p>
+          <a href="${linkedin}" target="_blank">LinkedIn</a> | 
+          <a href="${github}" target="_blank">GitHub</a>
+        </p>
+      `;
+
+      document.getElementById("output").innerHTML = result;
+    }
+  </script>
+</body>
+</html>

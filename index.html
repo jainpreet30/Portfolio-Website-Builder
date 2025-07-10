@@ -18,6 +18,30 @@
       border-radius: 12px;
       box-shadow: 0 0 10px rgba(0,0,0,0.1);
     }
+    body.light-theme {
+    background: #f5f5f5;
+    color: #000;
+    }
+    body.dark-theme {
+    background: #121212;
+    color: #fff;
+    }
+    body.blue-theme {
+    background: #e3f2fd;
+    color: #0d47a1;
+    }
+    .container {
+    background: inherit;
+    }
+    input, textarea {
+    background: #fff;
+    color: #000;
+    }
+    body.dark-theme input,
+    body.dark-theme textarea {
+    background: #1e1e1e;
+    color: #fff;
+    }
     input, textarea {
       width: 100%;
       margin-bottom: 10px;
@@ -42,35 +66,89 @@
     <input id="github" placeholder="GitHub URL" />
     
     <button onclick="generatePortfolio()">Generate Portfolio</button>
+    <br />
+    <button onclick="clearData()">Clear Data</button>
+    <button onclick="toggleDarkMode()">Toggle Dark Mode</button>
+    <select id="theme" onchange="applyTheme()">
+    <option value="light">🌞 Light Theme</option>
+    <option value="dark">🌙 Dark Theme</option>
+    <option value="blue">🔵 Blue Theme</option>
+</select>
+
 
     <div id="output"></div>
   </div>
 
   <script>
-    function generatePortfolio() {
-      const name = document.getElementById("name").value;
-      const title = document.getElementById("title").value;
-      const about = document.getElementById("about").value;
-      const skills = document.getElementById("skills").value.split(",");
-      const linkedin = document.getElementById("linkedin").value;
-      const github = document.getElementById("github").value;
+  // Load values on page load
+  window.onload = function () {
+    const fields = ["name", "title", "about", "skills", "linkedin", "github"];
+    fields.forEach(id => {
+      const saved = localStorage.getItem(id);
+      if (saved) document.getElementById(id).value = saved;
+    });
 
-      const skillList = skills.map(s => `<li>${s.trim()}</li>`).join("");
+    const theme = localStorage.getItem("theme") || "light";
+    document.getElementById("theme").value = theme;
+    applyTheme();
+    generatePortfolio();
+  };
 
-      const result = `
-        <h2>${name}</h2>
-        <h3>${title}</h3>
-        <p>${about}</p>
-        <h4>Skills:</h4>
-        <ul>${skillList}</ul>
-        <p>
-          <a href="${linkedin}" target="_blank">LinkedIn</a> | 
-          <a href="${github}" target="_blank">GitHub</a>
-        </p>
-      `;
+  function generatePortfolio() {
+    const name = document.getElementById("name").value;
+    const title = document.getElementById("title").value;
+    const about = document.getElementById("about").value;
+    const skills = document.getElementById("skills").value.split(",");
+    const linkedin = document.getElementById("linkedin").value;
+    const github = document.getElementById("github").value;
 
-      document.getElementById("output").innerHTML = result;
+    // Save to localStorage
+    localStorage.setItem("name", name);
+    localStorage.setItem("title", title);
+    localStorage.setItem("about", about);
+    localStorage.setItem("skills", document.getElementById("skills").value);
+    localStorage.setItem("linkedin", linkedin);
+    localStorage.setItem("github", github);
+
+    const skillList = skills.map(s => `<li>${s.trim()}</li>`).join("");
+
+    const result = `
+      <h2>${name}</h2>
+      <h3>${title}</h3>
+      <p>${about}</p>
+      <h4>Skills:</h4>
+      <ul>${skillList}</ul>
+      <p>
+        <a href="${linkedin}" target="_blank">LinkedIn</a> | 
+        <a href="${github}" target="_blank">GitHub</a>
+      </p>
+    `;
+    document.getElementById("output").innerHTML = result;
+  }
+
+  function clearData() {
+    localStorage.clear();
+    location.reload();
+  }
+
+  function toggleDarkMode() {
+    const body = document.body;
+    if (body.classList.contains("dark-theme")) {
+      body.classList.remove("dark-theme");
+      body.classList.add("light-theme");
+      localStorage.setItem("theme", "light");
+    } else {
+      body.classList.remove("light-theme");
+      body.classList.add("dark-theme");
+      localStorage.setItem("theme", "dark");
     }
-  </script>
+  }
+
+  function applyTheme() {
+    const selected = document.getElementById("theme").value;
+    document.body.className = selected + "-theme";
+    localStorage.setItem("theme", selected);
+  }
+</script>
 </body>
 </html>

@@ -73,7 +73,13 @@
     <option value="light">🌞 Light Theme</option>
     <option value="dark">🌙 Dark Theme</option>
     <option value="blue">🔵 Blue Theme</option>
+    <button onclick="downloadHTML()">Download Portfolio as HTML</button>
+    <button onclick="savePortfolio()">Save This Portfolio</button>
 </select>
+    <div id="savedPortfolios" style="margin-top: 20px;">
+  <h3>Saved Portfolios:</h3>
+  <ul id="portfolioList"></ul>
+</div>
 
 
     <div id="output"></div>
@@ -149,6 +155,93 @@
     document.body.className = selected + "-theme";
     localStorage.setItem("theme", selected);
   }
+  function downloadHTML() {
+  const name = document.getElementById("name").value;
+  const title = document.getElementById("title").value;
+  const about = document.getElementById("about").value;
+  const skills = document.getElementById("skills").value.split(",");
+  const linkedin = document.getElementById("linkedin").value;
+  const github = document.getElementById("github").value;
+
+  const skillList = skills.map(s => `<li>${s.trim()}</li>`).join("");
+
+  const htmlContent = `
+    <!DOCTYPE html>
+    <html>
+    <head>
+      <title>${name}'s Portfolio</title>
+      <style>
+        body { font-family: Arial; padding: 20px; line-height: 1.6; }
+        h2 { color: #2c3e50; }
+        a { color: #0077cc; }
+      </style>
+    </head>
+    <body>
+      <h2>${name}</h2>
+      <h3>${title}</h3>
+      <p>${about}</p>
+      <h4>Skills:</h4>
+      <ul>${skillList}</ul>
+      <p>
+        <a href="${linkedin}" target="_blank">LinkedIn</a> |
+        <a href="${github}" target="_blank">GitHub</a>
+      </p>
+    </body>
+    </html>
+  `;
+
+  const blob = new Blob([htmlContent], { type: "text/html" });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement("a");
+  a.href = url;
+  a.download = `${name.split(" ").join("_")}_portfolio.html`;
+  a.click();
+  URL.revokeObjectURL(url);
+}
+function savePortfolio() {
+  const name = document.getElementById("name").value;
+  const data = {
+    name,
+    title: document.getElementById("title").value,
+    about: document.getElementById("about").value,
+    skills: document.getElementById("skills").value,
+    linkedin: document.getElementById("linkedin").value,
+    github: document.getElementById("github").value,
+  };
+
+  let all = JSON.parse(localStorage.getItem("portfolios")) || [];
+  all.push(data);
+  localStorage.setItem("portfolios", JSON.stringify(all));
+  alert("Portfolio saved!");
+  showSavedPortfolios();
+}
+
+function showSavedPortfolios() {
+  const list = document.getElementById("portfolioList");
+  list.innerHTML = "";
+  const all = JSON.parse(localStorage.getItem("portfolios")) || [];
+  all.forEach((p, index) => {
+    const li = document.createElement("li");
+    li.innerHTML = `<strong>${p.name}</strong> - <button onclick="loadPortfolio(${index})">Load</button>`;
+    list.appendChild(li);
+  });
+}
+
+function loadPortfolio(index) {
+  const all = JSON.parse(localStorage.getItem("portfolios")) || [];
+  const p = all[index];
+  document.getElementById("name").value = p.name;
+  document.getElementById("title").value = p.title;
+  document.getElementById("about").value = p.about;
+  document.getElementById("skills").value = p.skills;
+  document.getElementById("linkedin").value = p.linkedin;
+  document.getElementById("github").value = p.github;
+  generatePortfolio();
+}
+window.onload = function () {
+  // ... your other load logic
+  showSavedPortfolios(); // 👈 Add this line
+};
 </script>
 </body>
 </html>

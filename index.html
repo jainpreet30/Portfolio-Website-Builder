@@ -52,6 +52,16 @@
       border-top: 2px dashed #ccc;
       padding-top: 20px;
     }
+    @media (max-width: 600px) {
+  .container {
+    padding: 10px;
+  }
+  input, textarea, button, select {
+    font-size: 16px;
+    margin-bottom: 8px;
+  }
+}
+
   </style>
 </head>
 <body>
@@ -64,18 +74,23 @@
     <input id="skills" placeholder="Skills (comma separated)" />
     <input id="linkedin" placeholder="LinkedIn URL" />
     <input id="github" placeholder="GitHub URL" />
-    
+    <input id="photo" placeholder="Profile Photo URL (optional)" />
+    <input id="email" placeholder="Your Email (optional)" />
+
     <button onclick="generatePortfolio()">Generate Portfolio</button>
     <br />
     <button onclick="clearData()">Clear Data</button>
     <button onclick="toggleDarkMode()">Toggle Dark Mode</button>
-    <select id="theme" onchange="applyTheme()">
-    <option value="light">🌞 Light Theme</option>
-    <option value="dark">🌙 Dark Theme</option>
-    <option value="blue">🔵 Blue Theme</option>
-    <button onclick="downloadHTML()">Download Portfolio as HTML</button>
-    <button onclick="savePortfolio()">Save This Portfolio</button>
 </select>
+<select id="theme" onchange="applyTheme()">
+  <option value="light">🌞 Light Theme</option>
+  <option value="dark">🌙 Dark Theme</option>
+  <option value="blue">🔵 Blue Theme</option>
+</select>
+
+<button onclick="downloadHTML()">Download Portfolio as HTML</button>
+<button onclick="savePortfolio()">Save This Portfolio</button>
+
     <div id="savedPortfolios" style="margin-top: 20px;">
   <h3>Saved Portfolios:</h3>
   <ul id="portfolioList"></ul>
@@ -87,18 +102,21 @@
 
   <script>
   // Load values on page load
-  window.onload = function () {
-    const fields = ["name", "title", "about", "skills", "linkedin", "github"];
-    fields.forEach(id => {
-      const saved = localStorage.getItem(id);
-      if (saved) document.getElementById(id).value = saved;
-    });
+ window.onload = function () {
+  const fields = ["name", "title", "about", "skills", "linkedin", "github"];
+  fields.forEach(id => {
+    const saved = localStorage.getItem(id);
+    if (saved) document.getElementById(id).value = saved;
+  });
 
-    const theme = localStorage.getItem("theme") || "light";
-    document.getElementById("theme").value = theme;
-    applyTheme();
-    generatePortfolio();
-  };
+  const theme = localStorage.getItem("theme") || "light";
+  document.getElementById("theme").value = theme;
+  applyTheme();
+
+  generatePortfolio();
+  showSavedPortfolios();
+};
+
 
   function generatePortfolio() {
     const name = document.getElementById("name").value;
@@ -107,6 +125,9 @@
     const skills = document.getElementById("skills").value.split(",");
     const linkedin = document.getElementById("linkedin").value;
     const github = document.getElementById("github").value;
+    const photo = document.getElementById("photo").value;
+    const email = document.getElementById("email").value;
+
 
     // Save to localStorage
     localStorage.setItem("name", name);
@@ -115,6 +136,8 @@
     localStorage.setItem("skills", document.getElementById("skills").value);
     localStorage.setItem("linkedin", linkedin);
     localStorage.setItem("github", github);
+    localStorage.setItem("photo", photo);
+    localStorage.setItem("email", email);
 
     const skillList = skills.map(s => `<li>${s.trim()}</li>`).join("");
 
@@ -128,6 +151,9 @@
         <a href="${linkedin}" target="_blank">LinkedIn</a> | 
         <a href="${github}" target="_blank">GitHub</a>
       </p>
+      ${photo ? `<img src="${photo}" alt="Profile" width="100" style="border-radius:50px;">` : ""}
+      ${email ? `<p>Email: <a href="mailto:${email}">${email}</a></p>` : ""}
+
     `;
     document.getElementById("output").innerHTML = result;
   }
@@ -207,12 +233,20 @@ function savePortfolio() {
     skills: document.getElementById("skills").value,
     linkedin: document.getElementById("linkedin").value,
     github: document.getElementById("github").value,
+    photo: document.getElementById("photo").value,
+    email: document.getElementById("email").value,
   };
 
   let all = JSON.parse(localStorage.getItem("portfolios")) || [];
   all.push(data);
   localStorage.setItem("portfolios", JSON.stringify(all));
   alert("Portfolio saved!");
+  showSavedPortfolios();
+}
+function deletePortfolio(index) {
+  let all = JSON.parse(localStorage.getItem("portfolios")) || [];
+  all.splice(index, 1);
+  localStorage.setItem("portfolios", JSON.stringify(all));
   showSavedPortfolios();
 }
 
@@ -222,7 +256,11 @@ function showSavedPortfolios() {
   const all = JSON.parse(localStorage.getItem("portfolios")) || [];
   all.forEach((p, index) => {
     const li = document.createElement("li");
-    li.innerHTML = `<strong>${p.name}</strong> - <button onclick="loadPortfolio(${index})">Load</button>`;
+    li.innerHTML = `
+      <strong>${p.name}</strong> 
+      <button onclick="loadPortfolio(${index})">Load</button> 
+      <button onclick="deletePortfolio(${index})">Delete</button>
+    `;
     list.appendChild(li);
   });
 }
@@ -236,12 +274,10 @@ function loadPortfolio(index) {
   document.getElementById("skills").value = p.skills;
   document.getElementById("linkedin").value = p.linkedin;
   document.getElementById("github").value = p.github;
+  document.getElementById("photo").value = p.photo;
+  document.getElementById("email").value = p.email;
   generatePortfolio();
 }
-window.onload = function () {
-  // ... your other load logic
-  showSavedPortfolios(); // 👈 Add this line
-};
 </script>
 </body>
 </html>
